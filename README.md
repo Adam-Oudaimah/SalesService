@@ -21,3 +21,6 @@ Please follow the instructions below in order to successfully run the applicatio
 ```java -jar -Dspring.profiles.active=local SalesService-1.0.0-SNAPSHOT.jar```
 
 This will start the application and you can start using its APIs.
+
+This it the class diagram: \
+![Class Diagram](images/class_diagram.png)
