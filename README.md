@@ -6,13 +6,13 @@ Please follow the instructions below in order to successfully run the applicatio
 2. gradle 6.6
 
 ## Instructions:
-1. Clone the following repository: https://github.com/Adam-Oudaimah/SalesRestJava \
+1. Clone the following repository (https://github.com/Adam-Oudaimah/SalesRestJava), and CD to it: \
 ```git clone https://github.com/Adam-Oudaimah/SalesRestJava.git```
-2. Init the submodule repository: https://github.com/Adam-Oudaimah/SalesRestSpec \
-```git clone https://github.com/Adam-Oudaimah/SalesRestSpec.git```
+2. Init the submodule repository (https://github.com/Adam-Oudaimah/SalesRestSpec) using the folloing command: \
+```git submodule update --init --force --remote```
 3. Publish A new artifact to Maven local repository using the following command: \
 ```gradle PublishToMavenLocal```
-4. Clone this repository.
+4. Clone this repository (SalesService), and CD to it.
 5. Build the executable .JAR file using the command: \
 ```gradle bootJar```
 5. You need a running MySQL server with an emprty database called 'sales'
