@@ -1,0 +1,19 @@
+server:
+   port: 8000
+   servlet.context-path: /
+spring:
+   application:
+      name: LabelDataService
+spring.jackson.serialization.FAIL_ON_EMPTY_BEANS: false
+---
+spring.profiles: local
+spring:
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sales
+    username: root
+    password:
+  jpa:
+    hibernate.ddl-auto: create
+    generate-ddl: true
+    show-sql: true
