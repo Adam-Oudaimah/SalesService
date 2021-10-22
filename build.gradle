@@ -1,0 +1,156 @@
+plugins {
+    id "java"
+    id "eclipse"
+    id "org.springframework.boot" version "2.3.4.RELEASE"
+    id "org.ajoberstar.grgit" version "3.1.1"
+    id "com.gorylenko.gradle-git-properties" version "2.0.0"
+}
+
+apply plugin: "io.spring.dependency-management"
+
+ext {
+    scope = getScope()
+    System.setProperty("sendCredentialsOverHttp", "true")
+    
+    containerPorts = [new java.lang.String("8000"), new java.lang.String("9000")]
+    
+    containerGroup = "database"
+    containerName = "sales-data"
+    mainClass = "colourmyplate.data.Application"
+}
+
+group = "colourmyplate.data"
+version = getVersion("1.0.0", scope)
+sourceCompatibility = 14
+targetCompatibility = 14
+
+sourceSets {
+    main { 
+        java { srcDirs = ["src/java"] }
+        resources { srcDir "src/resources" }
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    jcenter()
+    gradlePluginPortal()
+}
+
+dependencyManagement {
+    resolutionStrategy {
+        cacheChangingModulesFor 0, "seconds"
+        cacheDynamicVersionsFor 0, "seconds"
+    }
+}
+
+configurations {
+    all {
+        resolutionStrategy {
+            cacheChangingModulesFor 0, "seconds"
+            cacheDynamicVersionsFor 0, "seconds"
+        }
+    }
+
+    implementation.exclude module: "spring-boot-starter-tomcat"
+    testImplementation.exclude module: "junit"
+}
+
+dependencies {
+    // The LabelDataRest generated from the OPEN API specifications
+    implementation "colourmyplate.data:SalesRestJava:1.0.0-SNAPSHOT"
+    
+    // Javax Validation API
+    compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+    // For utils
+    compile "commons-io:commons-io:2.6"
+    
+
+    // Runtime dependencies
+    compile "org.springframework.boot:spring-boot-starter-web:2.3.4.RELEASE"
+    compile "org.springframework.boot:spring-boot-starter-undertow:2.3.4.RELEASE"
+    
+    // Spring Data for MySQL
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.13'
+    
+
+    // For monitoring        
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile "io.micrometer:micrometer-registry-prometheus:1.5.1"
+}
+
+test {
+    systemProperty("spring.profiles.active", project.properties.get("profile"))
+    useJUnitPlatform() // Execution of junit5 tests via gradle
+}
+
+// Limit data written to git.properties, list all desired properties seperately
+gitProperties {
+    keys = [
+        "git.branch", 
+        "git.build.time",
+        "git.build.version",
+        "git.closest.tag.commit.count",
+        "git.closest.tag.name",
+        "git.commit.id",
+        "git.commit.id.abbrev",
+        "git.commit.id.describe",
+        "git.commit.message.full",
+        "git.commit.message.short",
+        "git.commit.time",
+        "git.dirty",
+        "git.tags",
+        "git.total.commit.count"
+    ]
+}
+
+task genAppInfo {
+    def props = new Properties()
+    props.setProperty("info.app.name", "$project.name")
+    props.setProperty("info.app.version", "$project.version")
+    props.setProperty("info.app.group", "$project.group")
+    
+    def propertyFile = new File("$projectDir/src/resources/application.properties")
+    propertyFile.createNewFile();
+    props.store(propertyFile.newWriter(), null)
+}
+compileJava.dependsOn genAppInfo
+
+String getConfigurationProperty(String envVar, String sysProp, String defaultValue) {
+    def result = System.getenv(envVar) ?: project.findProperty(sysProp)
+    result ?: defaultValue
+}
+
+
+import org.ajoberstar.grgit.Grgit
+String getScope() {
+    String branchName = null
+    
+    Map<String, String> env = System.getenv()
+    for (String name in [ "GIT_LOCAL_BRANCH", "GIT_BRANCH", "BRANCH_NAME" ]) {
+        if (env.containsKey(name)) {
+            branchName = env[name]
+            break
+        }
+    }
+    
+    if (!branchName) { // Could not detect from env variables, use branch from repo
+        try {
+            branchName = Grgit.open(dir: project.file(".")).branch.current().name
+        } catch (Exception e) {}
+    }
+
+    // Because we only have access to snapshots repository for now.
+    // TODO: Have to be fixed accrording to the selected branch
+    return "test"
+}
+
+String getVersion(String version, String scope) {
+    String result = version 
+    if (scope != "prod")
+        result = String.format("%s-%s", version, (scope == "test") ? "SNAPSHOT" : new Date().format("yyyyMMdd.HHmmss"))
+    return result
+}
