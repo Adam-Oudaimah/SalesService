@@ -13,9 +13,9 @@ Please follow the instructions below in order to successfully run the applicatio
 3. Publish A new artifact to Maven local repository using the following command: \
 ```gradle PublishToMavenLocal```
 4. Clone this repository (SalesService), and CD to it.
-5. Build the executable .JAR file using the command: \
+5. You need a running MySQL server with a user named 'root' and no password, or you can change these configurations from the src/resources/application.yaml file.
+6. Build the executable .JAR file using the command: \
 ```gradle bootJar```
-5. You need a running MySQL server with an emprty database called 'sales'
 6. CD to the following directory from this repository: "build\libs"
 7. Run the application using the command: \
 ```java -jar -Dspring.profiles.active=local SalesService-1.0.0-SNAPSHOT.jar```
