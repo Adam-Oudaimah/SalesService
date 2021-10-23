@@ -163,8 +163,8 @@ public class SaleService implements SalesApi {
 
 	@Override
 	@Transactional
-	public ResponseEntity<Void> updateSaleOperation(@Valid SaleDAO saleDAO) {
-		if (!salesRepository.existsById(Long.parseLong(saleDAO.getId()))) {
+	public ResponseEntity<Void> updateSaleOperation(Integer saleId, @Valid SaleDAO saleDAO) {
+		if (!salesRepository.existsById(Long.valueOf(saleId))) {
 			LOG.error("Error while updating the sale opertaion because it could not be found");
 			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
 		}

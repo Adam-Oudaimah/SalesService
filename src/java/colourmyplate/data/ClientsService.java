@@ -81,8 +81,11 @@ public class ClientsService implements ClientsApi {
 
 	@Override
 	@Transactional
-	public ResponseEntity<Void> updateClient(@Valid ClientDAO clientDAO) {
+	public ResponseEntity<Void> updateClient(Integer clientId, @Valid ClientDAO clientDAO) {
 		try {
+			if (!clientsRepository.existsById(Long.valueOf(clientId))) {
+				return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+			}
 			Client client = clientsRepository.findById(Long.parseLong(clientDAO.getId())).get();
 			client.setName(client.getName());
 			client.setLastName(client.getLastName());

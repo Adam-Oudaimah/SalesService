@@ -92,8 +92,11 @@ public class ProductService implements ProductsApi {
 
 	@Override
 	@Transactional
-	public ResponseEntity<Void> updateProduct(@Valid ProductDAO productDAO) {
+	public ResponseEntity<Void> updateProduct(Integer productId, @Valid ProductDAO productDAO) {
 		try {
+			if (!productsRepository.existsById(Long.valueOf(productId))) {
+				return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+			}
 			Product product = productsRepository.findById(Long.parseLong(productDAO.getId())).get();
 			product.setName(productDAO.getName());
 			product.setQuantity(productDAO.getQuantity());
